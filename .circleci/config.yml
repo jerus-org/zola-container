@@ -112,7 +112,7 @@ workflows:
         - << pipeline.parameters.validation-flag >>
     jobs:
       - toolkit/label:
-          zola_version: << pipeline.parameters.zola-version >>
+          min_rust_version: 1.65.0
           context: pcu-app
           filters:
             branches:
@@ -132,7 +132,7 @@ workflows:
             - release
             - bot-check
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
-          zola_version: << pipeline.parameters.zola-version >>
+          min_rust_version: 1.65.0
 
   on_success:
     when:
@@ -154,7 +154,7 @@ workflows:
           filters:
             branches:
               only: main
-          ZOLA_VERSION: << pipeline.parameters.zola-version >>
+          min_rust_version: 1.65.0
           context:
             - bot-check
 
@@ -173,7 +173,7 @@ workflows:
             - release
             - bot-check
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
-          zola_version: << pipeline.parameters.zola-version >>
+          min_rust_version: 1.65.0
           when_cargo_release: false
           pcu_update_changelog: true
           pcu_verbosity: "-vvvv"
