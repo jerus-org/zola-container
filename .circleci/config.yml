@@ -112,7 +112,7 @@ workflows:
         - << pipeline.parameters.validation-flag >>
     jobs:
       - toolkit/label:
-          min_rust_version: 1.65.0
+          min_rust_version: 1.81
           context: pcu-app
           filters:
             branches:
@@ -132,7 +132,7 @@ workflows:
             - release
             - bot-check
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
-          min_rust_version: 1.65.0
+          min_rust_version: 1.81
 
   on_success:
     when:
@@ -154,7 +154,7 @@ workflows:
           filters:
             branches:
               only: main
-          min_rust_version: 1.65.0
+          min_rust_version: 1.81
           context:
             - bot-check
 
@@ -173,7 +173,7 @@ workflows:
             - release
             - bot-check
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
-          min_rust_version: 1.65.0
+          min_rust_version: 1.81
           when_cargo_release: false
           pcu_update_changelog: true
           pcu_verbosity: "-vvvv"
