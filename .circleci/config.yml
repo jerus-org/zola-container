@@ -1,9 +1,9 @@
 version: 2.1
 
 parameters:
-  min-rust-version:
+  zola-version:
     type: string
-    default: "1.61"
+    default: "0.19.2"
   fingerprint:
     type: string
     default: SHA256:OkxsH8Z6Iim6WDJBaII9eTT9aaO1f3eDc6IpsgYYPVg
@@ -18,96 +18,53 @@ parameters:
 
 orbs:
   toolkit: jerus-org/circleci-toolkit@2.0.0
-  sonarcloud: sonarsource/sonarcloud@2.0.0
 
 executors:
   ubuntu:
     docker:
-      - image: cimg/base:2025.01
+      - image: cimg/base:current
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  rust-env:
+  zola-env:
     docker:
-      - image: jerusdp/ci-rust:<<pipeline.parameters.min-rust-version>>
-  base_env:
-    docker:
-      - image: jerusdp/ci-rust:base
+      - image: jerusdp/ci-zola:<<pipeline.parameters.zola-version>>
 
 commands:
   make-test:
     parameters:
-      rust-min-version:
-        default: "1.56"
+      zola-version:
+        default: "0.19.2"
         type: string
     steps:
       - run:
-          name: make test for minimum version <<parameters.rust-min-version>>
+          name: make test for minimum version <<parameters.zola-version>>
           command: |
-            REPO=jerusdp/ci-rust
-            TAG=<<parameters.rust-min-version>>
-            docker build --build-arg MIN_RUST_VERSION=<<parameters.rust-min-version>> -t ${REPO}/test:${TAG}-wasi --target test .
-            docker run --rm ${REPO}/test:${TAG}-wasi
+            REPO=jerusdp/ci-zola
+            TAG=<<parameters.zola-version>>
+            docker build --build-arg ZOLA_VERSION=<<parameters.zola-version>> -t ${REPO}/test:${TAG} --target test .
+            docker run --rm ${REPO}/test:${TAG}
 
   publish_rust_env:
     parameters:
-      rust-min-version:
-        default: "1.56"
+      zola-version:
+        default: "0.19.2"
         type: string
     steps:
       - run:
-          name: Publish for minimum version <<parameters.rust-min-version>>
+          name: Publish for version <<parameters.zola-version>>
           command: |
-            REPO=jerusdp/ci-rust
-            TAG=<<parameters.rust-min-version>>
+            REPO=jerusdp/ci-zola
+            TAG=<<parameters.zola-version>>
             INPUT_RELEASE_VERSION=0.1.0
-            docker build --build-arg MIN_RUST_VERSION=<<parameters.rust-min-version>> -t ${REPO}:${TAG} --target final .
+            docker build --build-arg ZOLA_VERSION=<<parameters.zola-version>> -t ${REPO}:${TAG} --target final .
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker push ${REPO}:${TAG}
-
-  publish_rust_wasi_env:
-    parameters:
-      rust-min-version:
-        default: "1.56"
-        type: string
-    steps:
-      - run:
-          name: Publish for minimum version <<parameters.rust-min-version>>
-          command: |
-            REPO=jerusdp/ci-rust
-            TAG=<<parameters.rust-min-version>>
-            INPUT_RELEASE_VERSION=0.1.0
-            docker build --build-arg MIN_RUST_VERSION=<<parameters.rust-min-version>> -t ${REPO}:${TAG}-wasi --target wasi .
-            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
-            docker push ${REPO}:${TAG}-wasi
-
-  publish_base_cmd:
-    steps:
-      - run:
-          name: Publish for minimum version base
-          command: |
-            REPO=jerusdp/ci-rust
-            INPUT_RELEASE_VERSION=0.1.0
-            docker build -t ${REPO}:base --target final .
-            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
-            docker push ${REPO}:base
-
-  cargo_audit:
-    parameters:
-      ignore_advisories:
-        type: string
-        default: ""
-        description: "Additional parameters to list advisories that should be ignored"
-    steps:
-      - run:
-          name: Security audit against RUSTSEC
-          command: |
-            cargo audit -D warnings << parameters.ignore_advisories >>
 
 jobs:
   test:
     parameters:
-      min-rust-version:
+      zola-version:
         type: string
     executor: ubuntu
     steps:
@@ -115,11 +72,11 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - make-test:
-          rust-min-version: << parameters.min-rust-version >>
+          zola-version: << parameters.zola-version >>
 
   publish_rustc_version:
     parameters:
-      min-rust-version:
+      zola-version:
         type: string
     executor: ubuntu
     steps:
@@ -127,55 +84,8 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - publish_rust_env:
-          rust-min-version: << parameters.min-rust-version >>
+          zola-version: << parameters.zola-version >>
 
-  publish_rustc_wasi_version:
-    parameters:
-      min-rust-version:
-        type: string
-    executor: ubuntu
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - publish_rust_wasi_env:
-          rust-min-version: << parameters.min-rust-version >>
-
-  publish_base:
-    executor: ubuntu
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - publish_base_cmd
-
-  security:
-    executor:
-      name: base_env
-    parameters:
-      ignore_advisories:
-        default: ""
-        description: List of advisories to ignore each prefixed with "--ignore "
-        type: string
-      cargo_audit:
-        default: true
-        description: Don't run the cargo audit scan
-        type: boolean
-      sonarcloud:
-        default: true
-        description: Don't run the sonarcloud scan
-        type: boolean
-    steps:
-      - checkout
-      - when:
-          condition: << parameters.cargo_audit >>
-          steps:
-            - cargo_audit:
-                ignore_advisories: << parameters.ignore_advisories >>
-      - when:
-          condition: << parameters.sonarcloud >>
-          steps:
-            - sonarcloud/scan
 workflows:
   check_last_commit:
     when:
@@ -202,7 +112,7 @@ workflows:
         - << pipeline.parameters.validation-flag >>
     jobs:
       - toolkit/label:
-          min_rust_version: << pipeline.parameters.min-rust-version >>
+          zola_version: << pipeline.parameters.zola-version >>
           context: pcu-app
           filters:
             branches:
@@ -214,35 +124,15 @@ workflows:
               ignore: main
           matrix: &matrix
             parameters:
-              min-rust-version:
-                [
-                  "1.61",
-                  "1.65",
-                  "1.67",
-                  "1.70",
-                  "1.71",
-                  "1.72",
-                  "1.73",
-                  "1.74",
-                  "1.75",
-                  "1.76",
-                  "1.78",
-                  "1.79",
-                  "1.81",
-                ]
-      - security:
-          cargo_audit: false
-          context:
-            - SonarCloud
+              zola-version: ["0.19.2"]
       - toolkit/update_changelog:
           requires:
             - test
-            - security
           context:
             - release
             - bot-check
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
-          min_rust_version: << pipeline.parameters.min-rust-version >>
+          zola_version: << pipeline.parameters.zola-version >>
 
   on_success:
     when:
@@ -264,7 +154,7 @@ workflows:
           filters:
             branches:
               only: main
-          min_rust_version: << pipeline.parameters.min-rust-version >>
+          ZOLA_VERSION: << pipeline.parameters.zola-version >>
           context:
             - bot-check
 
@@ -279,20 +169,14 @@ workflows:
       - toolkit/make_release:
           requires:
             - publish_rustc_version
-            - publish_rustc_wasi_version
-            - publish_base
           context:
             - release
             - bot-check
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
-          min_rust_version: << pipeline.parameters.min-rust-version >>
+          zola_version: << pipeline.parameters.zola-version >>
           when_cargo_release: false
           pcu_update_changelog: true
           pcu_verbosity: "-vvvv"
       - publish_rustc_version:
           matrix:
             <<: *matrix
-      - publish_rustc_wasi_version:
-          matrix:
-            <<: *matrix
-      - publish_base
