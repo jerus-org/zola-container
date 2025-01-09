@@ -154,7 +154,7 @@ workflows:
           filters:
             branches:
               only: main
-          ZOLA_VERSION: << pipeline.parameters.zola-version >>
+          min_rust_version: 1.65.0
           context:
             - bot-check
 
