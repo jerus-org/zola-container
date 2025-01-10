@@ -173,6 +173,8 @@ workflows:
       - publish_zola_version:
           zola-version: << pipeline.parameters.zola-version >>
       - toolkit/make_release:
+          env:
+            - SEMVER=<< pipeline.parameters.zola-version >>
           requires:
             - publish_zola_version
           context:
