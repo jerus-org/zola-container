@@ -385,7 +385,7 @@ workflows:
       - make_release:
           name: Release << pipeline.parameters.zola-version >>
           pre-steps:
-            - run: export SEMVER=<< pipeline.parameters.zola-version >>
+            - run: echo "export SEMVER=<< pipeline.parameters.zola-version >>" >> "$BASH_ENV"
           requires:
             - publish_zola_version
           context:
