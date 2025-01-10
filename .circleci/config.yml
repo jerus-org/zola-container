@@ -179,9 +179,7 @@ workflows:
           name: Release << pipeline.parameters.zola-version >>
           pre-steps:
             - run:
-              name: "Set environment variables"
-              command: |
-                export SEMVER=<< pipeline.parameters.zola-version >>
+              command: export SEMVER=<< pipeline.parameters.zola-version >>
           requires:
             - publish_zola_version
           context:
