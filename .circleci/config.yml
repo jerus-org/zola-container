@@ -152,8 +152,11 @@ workflows:
 
   check_rebase:
     when:
-      not:
-        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+      and:
+        - not:
+            equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - not: << pipeline.parameters.release-flag >>
+
     jobs:
       - toolkit/label:
           filters:
@@ -173,8 +176,12 @@ workflows:
       - publish_zola_version:
           zola-version: << pipeline.parameters.zola-version >>
       - toolkit/make_release:
-          env:
-            - SEMVER=<< pipeline.parameters.zola-version >>
+          name: Release << pipeline.parameters.zola-version >>
+          pre-steps:
+            - run:
+              name: "Set environment variables"
+              command: |
+                export SEMVER=<< pipeline.parameters.zola-version >>
           requires:
             - publish_zola_version
           context:
