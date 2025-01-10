@@ -178,8 +178,7 @@ workflows:
       - toolkit/make_release:
           name: Release << pipeline.parameters.zola-version >>
           pre-steps:
-            - run:
-              command: export SEMVER=<< pipeline.parameters.zola-version >>
+            - run: export SEMVER=<< pipeline.parameters.zola-version >>
           requires:
             - publish_zola_version
           context:
