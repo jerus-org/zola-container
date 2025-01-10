@@ -33,8 +33,78 @@ executors:
   zola-env:
     docker:
       - image: jerusdp/ci-zola:<<pipeline.parameters.zola-version>>
+  rust-env:
+    docker:
+      - image: jerusdp/ci-rust:1.81
 
 commands:
+  make_github_release:
+    description: >
+      This command creates a github release using the pcu utility.
+      With the --package option the version number is taken from the Cargo.toml file of the package.
+      With the --workspace option the version number for each package is taken from the Cargo.toml file for that package.
+      Otherwise the SEMVER environment variable must be set to the version number to be released.
+      SEMVER can be set using the `set_env_var_semver` command.
+    parameters:
+      pcu_verbosity:
+        type: string
+        default: "-vv"
+        description: "The verbosity of the pcu command"
+      pcu_update_changelog:
+        type: boolean
+        default: false
+        description: "The verbosity of the pcu command"
+      pcu_prefix:
+        type: string
+        default: "v"
+        description: "The verbosity of the pcu command"
+      pcu_workspace:
+        type: boolean
+        default: false
+        description: "Whether or not to set the workspace flag of the pcu command"
+      pcu_package:
+        type: string
+        default: ""
+        description: "Package to release and/or publish"
+    steps:
+      - run:
+          name: Echo the value in SEMVER
+          command: |
+            echo "SEMVER: ${SEMVER}"
+      - run:
+          name: Create Github release
+          command: |
+            set -exo pipefail
+
+            if [ "<< parameters.pcu_package >>" != "" ] ; then
+                package="--package << parameters.pcu_package >>"
+            else
+                package=""
+            fi
+
+            if [ <<parameters.pcu_workspace>> == true ] ; then
+                pcu <<parameters.pcu_verbosity>> \
+                  release \
+                  $update_changelog \
+                  --prefix <<parameters.pcu_prefix>> \
+                  --workspace
+                exit
+            fi
+
+            if [ "" != "${SEMVER}" ] ; then
+              if [ <<parameters.pcu_update_changelog>> == true ] ; then
+                update_changelog="--update-changelog"
+              else
+                update_changelog=""
+              fi
+              pcu <<parameters.pcu_verbosity>> \
+                release \
+                $package \
+                $update_changelog \
+                --prefix <<parameters.pcu_prefix>> \
+                --semver ${SEMVER}
+            fi
+
   make-test:
     parameters:
       zola-version:
@@ -66,6 +136,142 @@ commands:
             docker push ${REPO}:${TAG}
 
 jobs:
+  make_release:
+    description: >
+      Assess the level using nextsv and make a release using cargo release
+    executor:
+      name: rust-env
+
+    parameters:
+      ssh_fingerprint:
+        type: string
+      min_rust_version:
+        type: string
+      pcu_verbosity:
+        type: string
+        default: "-vv"
+        description: "The verbosity of the pcu command"
+      publish:
+        type: boolean
+        default: true
+        description: |
+          Publish the release
+      when_github_release:
+        type: boolean
+        default: true
+        description: |
+          Create a github release
+      when_cargo_release:
+        type: boolean
+        default: true
+        description: |
+          Create a cargo release
+      when_update_pcu:
+        type: boolean
+        default: false
+        description: |
+          Update pcu to the latest version based on the main branch on Github
+      pcu_update_changelog:
+        type: boolean
+        default: false
+        description: "To update the changelog when making the github release"
+      when_pcu_push:
+        type: boolean
+        default: false
+        description: "To use the pcu push command"
+      pcu_semver:
+        type: boolean
+        default: false
+        description: "Whether or not set the semver version flag"
+      pcu_no_push:
+        type: boolean
+        default: false
+        description: "Whether or not prevent final push of commit"
+      pcu_commit_message:
+        type: string
+        default: "chore: test push"
+        description: "The commit message to use for the pcu test push"
+      pcu_prefix:
+        type: string
+        default: "v"
+        description: "The verbosity of the pcu command"
+      pcu_workspace:
+        type: boolean
+        default: false
+        description: "Whether or not to set the workspace flag of the pcu command"
+      package:
+        type: string
+        default: ""
+        description: "The package to publish"
+      when_use_workspace:
+        type: boolean
+        default: true
+        description: "Get version from the workspace"
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - << parameters.ssh_fingerprint >>
+      - run:
+          name: Remove original SSH key from agent
+          command: |
+            ssh-add -l
+            ssh-add -d ~/.ssh/id_rsa.pub
+            ssh-add -l
+      - toolkit/gpg_key
+      - toolkit/git_config
+      - when:
+          condition: << parameters.when_use_workspace >>
+          steps:
+            - attach_workspace:
+                at: /tmp/workspace
+            - run:
+                name: Get version from workspace
+                command: |
+                  set -exo pipefail
+                  version=$(cat /tmp/workspace/next-version)
+                  echo "got version: $version"
+                  echo $"export SEMVER='$version'" >> $BASH_ENV
+      - when:
+          condition: << parameters.when_update_pcu >>
+          steps:
+            - toolkit/install_latest_pcu
+      - when:
+          condition:
+            and:
+              - << parameters.when_cargo_release >>
+              - not: << parameters.when_pcu_push >>
+          steps:
+            - toolkit/make_cargo_release:
+                publish: << parameters.publish >>
+                package: << parameters.package >>
+      - when:
+          condition:
+            and:
+              - << parameters.when_cargo_release >>
+              - << parameters.when_pcu_push >>
+          steps:
+            - toolkit/make_cargo_release:
+                publish: << parameters.publish >>
+                package: << parameters.package >>
+                no_push: true
+      - when:
+          condition: << parameters.when_pcu_push >>
+          steps:
+            - toolkit/push_cmd:
+                pcu_no_push: << parameters.pcu_no_push >>
+                pcu_verbosity: << parameters.pcu_verbosity >>
+                pcu_semver: << parameters.pcu_semver >>
+      - when:
+          condition: << parameters.when_github_release >>
+          steps:
+            - make_github_release:
+                pcu_verbosity: << parameters.pcu_verbosity >>
+                pcu_update_changelog: << parameters.pcu_update_changelog >>
+                pcu_prefix: << parameters.pcu_prefix >>
+                pcu_workspace: << parameters.pcu_workspace >>
+                pcu_package: << parameters.package >>
+
   test:
     parameters:
       zola-version:
@@ -176,7 +382,7 @@ workflows:
       - publish_zola_version:
           zola-version: << pipeline.parameters.zola-version >>
           context: docker
-      - toolkit/make_release:
+      - make_release:
           name: Release << pipeline.parameters.zola-version >>
           pre-steps:
             - run: export SEMVER=<< pipeline.parameters.zola-version >>
