@@ -15,6 +15,10 @@ parameters:
     type: boolean
     default: false
     description: "If true, the success pipeline will be executed."
+  release-flag:
+    type: boolean
+    default: false
+    description: "If true, the release pipeline will be executed."
 
 orbs:
   toolkit: jerus-org/circleci-toolkit@2.0.0
@@ -74,7 +78,7 @@ jobs:
       - make-test:
           zola-version: << parameters.zola-version >>
 
-  publish_rustc_version:
+  publish_zola_version:
     parameters:
       zola-version:
         type: string
@@ -122,9 +126,7 @@ workflows:
           filters:
             branches:
               ignore: main
-          matrix: &matrix
-            parameters:
-              zola-version: ["0.19.2"]
+          zola-version: << pipeline.parameters.zola-version >>
       - toolkit/update_changelog:
           requires:
             - test
@@ -166,9 +168,11 @@ workflows:
         - not: << pipeline.parameters.success-flag >>
         - not: << pipeline.parameters.validation-flag >>
     jobs:
+      - publish_zola_version:
+          zola-version: << pipeline.parameters.zola-version >>
       - toolkit/make_release:
           requires:
-            - publish_rustc_version
+            - publish_zola_version
           context:
             - release
             - bot-check
@@ -176,7 +180,3 @@ workflows:
           min_rust_version: "1.81"
           when_cargo_release: false
           pcu_update_changelog: true
-          pcu_verbosity: "-vvvv"
-      - publish_rustc_version:
-          matrix:
-            <<: *matrix
