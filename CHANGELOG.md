@@ -15,5 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Configure Renovate(pr [#1])
 
+### Security
+
+- Dependencies: update rust docker tag to v1.84.0(pr [#5])
+
 [#2]: https://github.com/jerus-org/zola-container/pull/2
 [#1]: https://github.com/jerus-org/zola-container/pull/1
+[#5]: https://github.com/jerus-org/zola-container/pull/5
