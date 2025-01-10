@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ci-add when_use_workspace parameter to CircleCI config(pr [#13])
 - ci(circleci)-add rust environment and release commands to config file(pr [#14])
 
+### Fixed
+
+- circleci: correct SEMVER export in release workflow(pr [#15])
+
 ### Security
 
 - Dependencies: update rust docker tag to v1.84.0(pr [#5])
@@ -36,3 +40,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#11]: https://github.com/jerus-org/zola-container/pull/11
 [#13]: https://github.com/jerus-org/zola-container/pull/13
 [#14]: https://github.com/jerus-org/zola-container/pull/14
+[#15]: https://github.com/jerus-org/zola-container/pull/15
