@@ -11,4 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - create build of zola container(pr [#2])
 
+### Changed
+
+- Configure Renovate(pr [#1])
+
 [#2]: https://github.com/jerus-org/zola-container/pull/2
+[#1]: https://github.com/jerus-org/zola-container/pull/1
