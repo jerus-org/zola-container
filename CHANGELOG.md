@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(circleci)-simplify export command in release workflow steps(pr [#10])
 - ci(circleci)-add context to publish_zola_version job in config file(pr [#11])
 - ci-add when_use_workspace parameter to CircleCI config(pr [#13])
+- ci(circleci)-add rust environment and release commands to config file(pr [#14])
 
 ### Security
 
@@ -34,3 +35,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#10]: https://github.com/jerus-org/zola-container/pull/10
 [#11]: https://github.com/jerus-org/zola-container/pull/11
 [#13]: https://github.com/jerus-org/zola-container/pull/13
+[#14]: https://github.com/jerus-org/zola-container/pull/14
