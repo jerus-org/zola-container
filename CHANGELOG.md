@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ci(circleci)-add release-flag parameter and update job names(pr [#7])
 - ci-update check_rebase workflow to include release-flag condition(pr [#8])
 - chore(ci)-simplify environment variable setting in CircleCI config(pr [#9])
+- chore(circleci)-simplify export command in release workflow steps(pr [#10])
 
 ### Security
 
@@ -28,3 +29,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#7]: https://github.com/jerus-org/zola-container/pull/7
 [#8]: https://github.com/jerus-org/zola-container/pull/8
 [#9]: https://github.com/jerus-org/zola-container/pull/9
+[#10]: https://github.com/jerus-org/zola-container/pull/10
