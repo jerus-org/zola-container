@@ -98,6 +98,7 @@ workflows:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
         - not: << pipeline.parameters.success-flag >>
         - not: << pipeline.parameters.validation-flag >>
+        - not: << pipeline.parameters.release-flag >>
 
     jobs:
       - toolkit/choose_pipeline:
@@ -114,6 +115,7 @@ workflows:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
         - not: << pipeline.parameters.success-flag >>
         - << pipeline.parameters.validation-flag >>
+        - not: << pipeline.parameters.release-flag >>
     jobs:
       - toolkit/label:
           min_rust_version: "1.81"
@@ -143,6 +145,7 @@ workflows:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
         - << pipeline.parameters.success-flag >>
         - not: << pipeline.parameters.validation-flag >>
+        - not: << pipeline.parameters.release-flag >>
 
     jobs:
       - toolkit/end_success
@@ -163,10 +166,9 @@ workflows:
   release:
     when:
       and:
-        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - equal: ["release check", << pipeline.schedule.name >>]
         - not: << pipeline.parameters.success-flag >>
         - not: << pipeline.parameters.validation-flag >>
+        - << pipeline.parameters.release-flag >>
     jobs:
       - publish_zola_version:
           zola-version: << pipeline.parameters.zola-version >>
