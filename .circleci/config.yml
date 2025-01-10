@@ -175,6 +175,7 @@ workflows:
     jobs:
       - publish_zola_version:
           zola-version: << pipeline.parameters.zola-version >>
+          context: docker
       - toolkit/make_release:
           name: Release << pipeline.parameters.zola-version >>
           pre-steps:
