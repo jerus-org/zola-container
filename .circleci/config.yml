@@ -189,3 +189,4 @@ workflows:
           min_rust_version: "1.81"
           when_cargo_release: false
           pcu_update_changelog: true
+          workspace: false
