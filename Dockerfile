@@ -42,5 +42,7 @@ WORKDIR /home/circleci/project
 FROM final AS test
 WORKDIR /home/circleci/project
 COPY test.sh test.sh
+USER root
 RUN chmod a+x test.sh
+USER circleci
 ENTRYPOINT [ "/home/circleci/project/test.sh" ]
