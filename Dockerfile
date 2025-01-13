@@ -12,12 +12,10 @@ RUN set -eux; \
     curl \
     ; \
     rm -rf /var/lib/apt/lists/*;
-WORKDIR /home/circleci/project
-RUN \   
-    git clone --branch "v$ZOLA_VERSION" --single-branch https://github.com/getzola/zola.git zola && \
-    cd zola && \
-    cargo install --path . --locked --force && \
-    cd .. && \
+WORKDIR /tmp/project
+RUN git clone --branch "v$ZOLA_VERSION" --single-branch https://github.com/getzola/zola.git zola
+WORKDIR /tmp/project/zola
+RUN cargo install --path . --locked --force && \
     zola --version
 
 FROM rust:1.84.0-slim AS final
@@ -37,6 +35,8 @@ RUN set -eux; \
     ; \
     rm -rf /var/lib/apt/lists/*;
 COPY --from=binaries $CARGO_HOME/bin/zola $CARGO_HOME/bin/
+RUN adduser circleci
+USER circleci
 WORKDIR /home/circleci/project
 
 FROM final AS test
