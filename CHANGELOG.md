@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dependencies: update dependency toolkit to v2.0.1(pr [#18])
 - Dependencies: update dependency toolkit to v2.0.4(pr [#19])
+- Dependencies: update rust docker tag to v1.84.1(pr [#20])
 
 ## [0.19.2] - 2025-01-10
 
@@ -57,5 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#17]: https://github.com/jerus-org/zola-container/pull/17
 [#18]: https://github.com/jerus-org/zola-container/pull/18
 [#19]: https://github.com/jerus-org/zola-container/pull/19
+[#20]: https://github.com/jerus-org/zola-container/pull/20
 [Unreleased]: https://github.com/jerus-org/zola-container/compare/v0.19.2...HEAD
 [0.19.2]: https://github.com/jerus-org/zola-container/releases/tag/v0.19.2
