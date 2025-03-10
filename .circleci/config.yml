@@ -35,7 +35,7 @@ executors:
       - image: jerusdp/ci-zola:<<pipeline.parameters.zola-version>>
   rust-env:
     docker:
-      - image: jerusdp/ci-rust:1.81
+      - image: jerusdp/ci-rust:1.85
 
 commands:
   make-test:
