@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependencies: update dependency toolkit to v2.0.8(pr [#23])
 - Dependencies: update jerusdp/ci-rust docker tag to v1.85(pr [#25])
 - Dependencies: update dependency toolkit to v2.1.0(pr [#26])
+- Dependencies: update dependency toolkit to v2.2.0(pr [#27])
 
 ## [0.19.2] - 2025-01-10
 
@@ -69,5 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#23]: https://github.com/jerus-org/zola-container/pull/23
 [#25]: https://github.com/jerus-org/zola-container/pull/25
 [#26]: https://github.com/jerus-org/zola-container/pull/26
+[#27]: https://github.com/jerus-org/zola-container/pull/27
 [Unreleased]: https://github.com/jerus-org/zola-container/compare/v0.19.2...HEAD
 [0.19.2]: https://github.com/jerus-org/zola-container/releases/tag/v0.19.2
