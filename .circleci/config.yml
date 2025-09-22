@@ -21,7 +21,7 @@ parameters:
     description: "If true, the release pipeline will be executed."
 
 orbs:
-  toolkit: jerus-org/circleci-toolkit@2.12.1
+  toolkit: jerus-org/circleci-toolkit@2.13.0
 
 executors:
   ubuntu:
@@ -132,7 +132,7 @@ workflows:
             branches:
               ignore: main
           zola-version: << pipeline.parameters.zola-version >>
-      - toolkit/update_changelog:
+      - toolkit/update_prlog:
           requires:
             - test
           context:
@@ -191,5 +191,5 @@ workflows:
           ssh_fingerprint: << pipeline.parameters.fingerprint >>
           min_rust_version: "1.81"
           when_cargo_release: false
-          pcu_update_changelog: true
+          pcu_update_prlog: true
           when_use_workspace: false
