@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor(circleci)-remove make_github_release and make_release commands(pr [#16])
 - refactor(Dockerfile)-optimize build process and change user to circleci(pr [#17])
 - Update-renovate-configuration(pr [#53])
+- chore-rename CHANGELOG.md to PRLOG.md(pr [#56])
 
 ### Fixed
 
@@ -112,5 +113,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#52]: https://github.com/jerus-org/zola-container/pull/52
 [#54]: https://github.com/jerus-org/zola-container/pull/54
 [#55]: https://github.com/jerus-org/zola-container/pull/55
+[#56]: https://github.com/jerus-org/zola-container/pull/56
 [Unreleased]: https://github.com/jerus-org/zola-container/compare/v0.19.2...HEAD
 [0.19.2]: https://github.com/jerus-org/zola-container/releases/tag/v0.19.2
