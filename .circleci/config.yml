@@ -30,12 +30,6 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-  zola-env:
-    docker:
-      - image: jerusdp/ci-zola:<<pipeline.parameters.zola_version>>
-  rust-env:
-    docker:
-      - image: jerusdp/ci-rust:1.85
 
 commands:
   make-test:
