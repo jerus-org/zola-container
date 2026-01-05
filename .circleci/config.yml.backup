@@ -1,21 +1,21 @@
 version: 2.1
 
 parameters:
-  zola_version:
+  zola-version:
     type: string
     default: "0.19.2"
   fingerprint:
     type: string
     default: SHA256:OkxsH8Z6Iim6WDJBaII9eTT9aaO1f3eDc6IpsgYYPVg
-  validation_flag:
+  validation-flag:
     type: boolean
     default: false
     description: "If true, the validation pipeline will be executed."
-  success_flag:
+  success-flag:
     type: boolean
     default: false
     description: "If true, the success pipeline will be executed."
-  release_flag:
+  release-flag:
     type: boolean
     default: false
     description: "If true, the release pipeline will be executed."
@@ -32,7 +32,7 @@ executors:
           password: $DOCKERHUB_PASSWORD
   zola-env:
     docker:
-      - image: jerusdp/ci-zola:<<pipeline.parameters.zola_version>>
+      - image: jerusdp/ci-zola:<<pipeline.parameters.zola-version>>
   rust-env:
     docker:
       - image: jerusdp/ci-rust:1.85
@@ -99,9 +99,9 @@ workflows:
       and:
         - not:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - not: << pipeline.parameters.success_flag >>
-        - not: << pipeline.parameters.validation_flag >>
-        - not: << pipeline.parameters.release_flag >>
+        - not: << pipeline.parameters.success-flag >>
+        - not: << pipeline.parameters.validation-flag >>
+        - not: << pipeline.parameters.release-flag >>
 
     jobs:
       - toolkit/choose_pipeline:
@@ -116,9 +116,9 @@ workflows:
       and:
         - not:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - not: << pipeline.parameters.success_flag >>
-        - << pipeline.parameters.validation_flag >>
-        - not: << pipeline.parameters.release_flag >>
+        - not: << pipeline.parameters.success-flag >>
+        - << pipeline.parameters.validation-flag >>
+        - not: << pipeline.parameters.release-flag >>
     jobs:
       - toolkit/label:
           min_rust_version: "1.81"
@@ -131,7 +131,7 @@ workflows:
           filters:
             branches:
               ignore: main
-          zola-version: << pipeline.parameters.zola_version >>
+          zola-version: << pipeline.parameters.zola-version >>
       - toolkit/update_prlog:
           requires:
             - test
@@ -146,9 +146,9 @@ workflows:
       and:
         - not:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - << pipeline.parameters.success_flag >>
-        - not: << pipeline.parameters.validation_flag >>
-        - not: << pipeline.parameters.release_flag >>
+        - << pipeline.parameters.success-flag >>
+        - not: << pipeline.parameters.validation-flag >>
+        - not: << pipeline.parameters.release-flag >>
 
     jobs:
       - toolkit/end_success
@@ -158,7 +158,7 @@ workflows:
       and:
         - not:
             equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - not: << pipeline.parameters.release_flag >>
+        - not: << pipeline.parameters.release-flag >>
 
     jobs:
       - toolkit/label:
@@ -172,17 +172,17 @@ workflows:
   release:
     when:
       and:
-        - not: << pipeline.parameters.success_flag >>
-        - not: << pipeline.parameters.validation_flag >>
-        - << pipeline.parameters.release_flag >>
+        - not: << pipeline.parameters.success-flag >>
+        - not: << pipeline.parameters.validation-flag >>
+        - << pipeline.parameters.release-flag >>
     jobs:
       - publish_zola_version:
-          zola-version: << pipeline.parameters.zola_version >>
+          zola-version: << pipeline.parameters.zola-version >>
           context: docker
       - toolkit/make_release:
-          name: Release << pipeline.parameters.zola_version >>
+          name: Release << pipeline.parameters.zola-version >>
           pre-steps:
-            - run: echo "export SEMVER=<< pipeline.parameters.zola_version >>" >> "$BASH_ENV"
+            - run: echo "export SEMVER=<< pipeline.parameters.zola-version >>" >> "$BASH_ENV"
           requires:
             - publish_zola_version
           context:
