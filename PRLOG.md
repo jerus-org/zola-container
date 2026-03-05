@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - deps: update dependency toolkit to v4.3.0(pr [#62])
 - deps: update rust docker tag to v1.93(pr [#63])
 - deps: update dependency toolkit to v4.7.2(pr [#65])
+- deps: update rust:1.93-slim-trixie docker digest to c0a38f5(pr [#64])
 
 ### Security
 
@@ -128,5 +129,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#62]: https://github.com/jerus-org/zola-container/pull/62
 [#63]: https://github.com/jerus-org/zola-container/pull/63
 [#65]: https://github.com/jerus-org/zola-container/pull/65
+[#64]: https://github.com/jerus-org/zola-container/pull/64
 [Unreleased]: https://github.com/jerus-org/zola-container/compare/v0.19.2...HEAD
 [0.19.2]: https://github.com/jerus-org/zola-container/releases/tag/v0.19.2
