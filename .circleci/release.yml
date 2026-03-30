@@ -143,8 +143,8 @@ workflows:
           image: jerusdp/ci-zola
           tag: ${ZOLA_VERSION}
           extra_build_args: --target final
-          docker-username: DOCKERHUB_USERNAME
-          docker-password: DOCKERHUB_PASSWORD
+          docker_username: DOCKERHUB_USERNAME
+          docker_password: DOCKERHUB_PASSWORD
           requires: [toolkit/release_prlog]
           context:
             - docker
