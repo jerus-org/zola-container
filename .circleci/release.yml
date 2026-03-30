@@ -10,21 +10,18 @@ version: 2.1
 #                       only changes when the zola tool itself is updated
 #
 # Workflow:
-#   calculate-versions  - compute both versions; print report before the approval gate
+#   calculate-versions  - compute both versions; query DockerHub to auto-detect whether
+#                         jerusdp/ci-zola:<ZOLA_VERSION> needs publishing; print report
 #   approve-release     - manual gate: reviewer confirms versions before proceeding
 #   toolkit/release_prlog - create workspace v* git release and update PRLOG.md
 #   docker/publish      - build and push jerusdp/ci-zola:<ZOLA_VERSION>;
-#                         only runs when publish_docker: true is set at trigger time
+#                         skipped automatically if the image already exists on DockerHub
 
 parameters:
   workspace_version:
     type: string
     default: ""
     description: "Override workspace v* version (empty = nextsv auto-detect)"
-  publish_docker:
-    type: boolean
-    default: false
-    description: "Set to true to build and push the Docker image (when zola version has changed)"
 
 orbs:
   toolkit: jerus-org/circleci-toolkit@6.0.0
@@ -79,17 +76,29 @@ jobs:
             echo "zola: version from Dockerfile: $ZOLA_VERSION"
             echo "ZOLA_VERSION=${ZOLA_VERSION}" >> "$VERSIONS_FILE"
 
+            # Auto-detect whether Docker image needs publishing
+            echo "zola: checking DockerHub for jerusdp/ci-zola:${ZOLA_VERSION} ..."
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              "https://hub.docker.com/v2/repositories/jerusdp/ci-zola/tags/${ZOLA_VERSION}/")
+            if [ "$HTTP_CODE" = "200" ]; then
+              PUBLISH_DOCKER=false
+              echo "zola: image already exists on DockerHub — Docker publish will be skipped"
+            else
+              PUBLISH_DOCKER=true
+              echo "zola: image not found on DockerHub (HTTP ${HTTP_CODE}) — Docker publish will run"
+            fi
+            echo "PUBLISH_DOCKER=${PUBLISH_DOCKER}" >> "$VERSIONS_FILE"
+
             # Report card — visible before approval
             echo ""
             echo "======================================="
             echo "  Versions pending release approval"
             echo "======================================="
             printf "  %-32s %s\n" "workspace (v*)" "${WORKSPACE_VERSION}"
-            printf "  %-32s %s\n" "zola Docker image" "${ZOLA_VERSION}"
-            if [ "<< pipeline.parameters.publish_docker >>" = "true" ]; then
-              echo "  Docker publish: ENABLED  →  jerusdp/ci-zola:${ZOLA_VERSION}"
+            if [ "$PUBLISH_DOCKER" = "true" ]; then
+              printf "  %-32s %s  [NEW — will publish]\n" "zola Docker image" "${ZOLA_VERSION}"
             else
-              echo "  Docker publish: disabled (set publish_docker=true to enable)"
+              printf "  %-32s %s  [already published — skip]\n" "zola Docker image" "${ZOLA_VERSION}"
             fi
             echo "======================================="
             echo ""
@@ -119,19 +128,16 @@ workflows:
 
       - docker/publish:
           pre-steps:
-            - run:
-                name: Check if Docker publish is enabled
-                command: |
-                  if [ "<< pipeline.parameters.publish_docker >>" = "false" ]; then
-                    echo "publish_docker=false — skipping Docker image publish"
-                    circleci-agent step halt
-                  fi
             - attach_workspace:
                 at: /tmp/release-versions
             - run:
-                name: Load zola version
+                name: Load versions and check if Docker publish is needed
                 command: |
                   source /tmp/release-versions/versions.env
+                  if [ "${PUBLISH_DOCKER}" = "false" ]; then
+                    echo "Image jerusdp/ci-zola:${ZOLA_VERSION} already exists — skipping Docker publish"
+                    circleci-agent step halt
+                  fi
                   echo "Publishing jerusdp/ci-zola:${ZOLA_VERSION}"
                   echo "export ZOLA_VERSION=${ZOLA_VERSION}" >> "$BASH_ENV"
           image: jerusdp/ci-zola
