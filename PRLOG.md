@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - deps: update rust docker tag to v1.94(pr [#67])
 - dual-version release with conditional docker publish(pr [#68])
 - auto-detect whether Docker image needs publishing(pr [#69])
+- rename docker orb params to snake_case for v3 compatibility(pr [#70])
 
 ### Security
 
@@ -138,5 +139,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#67]: https://github.com/jerus-org/zola-container/pull/67
 [#68]: https://github.com/jerus-org/zola-container/pull/68
 [#69]: https://github.com/jerus-org/zola-container/pull/69
+[#70]: https://github.com/jerus-org/zola-container/pull/70
 [Unreleased]: https://github.com/jerus-org/zola-container/compare/v0.19.2...HEAD
 [0.19.2]: https://github.com/jerus-org/zola-container/releases/tag/v0.19.2
