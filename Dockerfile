@@ -1,4 +1,4 @@
-FROM rust:1.93-slim-trixie@sha256:c0a38f5662afdb298898da1d70b909af4bda4e0acff2dc52aea6360a9b9c6956 AS binaries
+FROM rust:1.94-slim-trixie@sha256:1d0000a49fb62f4fde24455f49d59c6c088af46202d65d8f455b722f7263e8f8 AS binaries
 # renovate: datasource=github depName=getzola/zola packageName=getzola/zola versioning=semver-coerced
 ENV ZOLA_VERSION=0.19.2
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -18,7 +18,7 @@ WORKDIR /tmp/project/zola
 RUN cargo install --path . --locked --force && \
     zola --version
 
-FROM rust:1.93-slim-trixie@sha256:c0a38f5662afdb298898da1d70b909af4bda4e0acff2dc52aea6360a9b9c6956 AS final
+FROM rust:1.94-slim-trixie@sha256:1d0000a49fb62f4fde24455f49d59c6c088af46202d65d8f455b722f7263e8f8 AS final
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
