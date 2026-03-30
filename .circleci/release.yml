@@ -1,0 +1,91 @@
+version: 2.1
+
+# Triggered manually via CircleCI UI or API (configured in CircleCI project
+# settings under "Triggers"). Runs independently of the push-triggered config.yml.
+#
+# Workflow:
+#   set_version       - extract ZOLA_VERSION from Dockerfile (Renovate-managed);
+#                       persist WORKSPACE_VERSION to workspace for downstream jobs
+#   approve-release   - manual gate: review calculated version before approving
+#   toolkit/release_prlog - create workspace v* release and update PRLOG.md
+#   docker/publish    - build and push jerusdp/ci-zola:<version> image
+
+parameters:
+  workspace_version:
+    type: string
+    default: ""
+    description: "Override workspace v* version (empty = derived from Dockerfile ENV ZOLA_VERSION)"
+
+orbs:
+  toolkit: jerus-org/circleci-toolkit@6.0.0
+  docker: circleci/docker@3.0.1
+
+executors:
+  ubuntu:
+    docker:
+      - image: cimg/base:current
+
+jobs:
+  set_version:
+    executor: ubuntu
+    steps:
+      - checkout
+      - run:
+          name: Determine release version
+          command: |
+            set -eo pipefail
+            if [ "<< pipeline.parameters.workspace_version >>" != "" ]; then
+              WORKSPACE_VERSION="<< pipeline.parameters.workspace_version >>"
+              echo "Using specified version: ${WORKSPACE_VERSION}"
+            else
+              WORKSPACE_VERSION=$(grep 'ENV ZOLA_VERSION=' Dockerfile | cut -d= -f2)
+              echo "Derived version from Dockerfile: ${WORKSPACE_VERSION}"
+            fi
+            echo "======================================="
+            echo "  Versions pending release approval"
+            echo "======================================="
+            printf "  %-32s %s\n" "zola-container (v*)" "${WORKSPACE_VERSION}"
+            echo "======================================="
+            mkdir -p /tmp/release-versions
+            echo "WORKSPACE_VERSION=${WORKSPACE_VERSION}" > /tmp/release-versions/versions.env
+            echo "--- versions.env ---"
+            cat /tmp/release-versions/versions.env
+      - persist_to_workspace:
+          root: /tmp/release-versions
+          paths:
+            - versions.env
+
+workflows:
+  release:
+    jobs:
+      - set_version:
+          name: calculate-versions
+
+      - approve-release:
+          type: approval
+          requires: [calculate-versions]
+
+      - toolkit/release_prlog:
+          requires: [approve-release]
+          context:
+            - release
+            - bot-check
+            - pcu-app
+
+      - docker/publish:
+          pre-steps:
+            - attach_workspace:
+                at: /tmp/release-versions
+            - run:
+                name: Load release version
+                command: |
+                  source /tmp/release-versions/versions.env
+                  echo "export WORKSPACE_VERSION=${WORKSPACE_VERSION}" >> "$BASH_ENV"
+          image: jerusdp/ci-zola
+          tag: ${WORKSPACE_VERSION}
+          extra_build_args: --target final
+          docker-username: DOCKERHUB_USERNAME
+          docker-password: DOCKERHUB_PASSWORD
+          requires: [toolkit/release_prlog]
+          context:
+            - docker
