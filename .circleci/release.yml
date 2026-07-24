@@ -25,7 +25,7 @@ parameters:
 
 orbs:
   toolkit: jerus-org/circleci-toolkit@6.6.2
-  docker: circleci/docker@4.0.0
+  docker: circleci/docker@4.0.1
 
 jobs:
   calculate_versions:
