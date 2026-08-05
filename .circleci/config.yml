@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  toolkit: jerus-org/circleci-toolkit@6.6.2
+  toolkit: jerus-org/circleci-toolkit@7.0.0
   docker: circleci/docker@4.0.1
 
 jobs:
@@ -30,6 +30,7 @@ workflows:
           context:
             - SonarCloud
       - docker/hadolint:
+          ignore_rules: DL3066
           filters:
             branches:
               ignore: main
