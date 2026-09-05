@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- deps: update rust docker tag to v1.98(pr [#81])
+
 ## [1.0.1] - 2026-09-05
 
 ### Fixed
@@ -165,6 +171,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#78]: https://github.com/jerus-org/zola-container/pull/78
 [#79]: https://github.com/jerus-org/zola-container/pull/79
 [#80]: https://github.com/jerus-org/zola-container/pull/80
+[#81]: https://github.com/jerus-org/zola-container/pull/81
+[Unreleased]: https://github.com/jerus-org/zola-container/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/jerus-org/zola-container/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jerus-org/zola-container/compare/v0.19.2...v1.0.0
 [0.19.2]: https://github.com/jerus-org/zola-container/releases/tag/v0.19.2
